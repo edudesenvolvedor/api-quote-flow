@@ -13,4 +13,9 @@ class Product extends Model
     protected $table = 'products';
 
     protected $fillable = ['id', 'name', 'description', 'price', 'status', 'type'];
+
+    public function quotes()
+    {
+        return $this->belongsToMany(Quote::class, 'quotes_products');
+    }
 }

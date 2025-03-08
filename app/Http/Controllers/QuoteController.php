@@ -104,4 +104,80 @@ class QuoteController extends Controller
             'message' => 'Success',
         ]);
     }
+
+    public function getProduct(string $quote_id, string $product_id)
+    {
+        $quote = Quote::find($quote_id)->products()->find($product_id);
+
+        if(!$quote) return response()->json([
+            'status_code' => 404,
+            'message' => 'Quote not found',
+        ]);
+
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'Success',
+            'data' => $quote
+        ]);
+    }
+
+    public function getAllProducts(string $quote_id)
+    {
+        $quote = Quote::find($quote_id);
+
+        if(!$quote) return response()->json([
+            'status_code' => 404,
+            'message' => 'Quote not found',
+        ]);
+
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'Success',
+            'data' => $quote->products()->get()
+        ]);
+    }
+
+    public function addProducts(Request $request, string $quote_id)
+    {
+        $request->validate([
+            'products' => 'required|array',
+            'products.*.name' => 'required|string',
+            'products.*.price' => 'required|numeric',
+            'products.*.description' => 'required|string',
+            'products.*.status' => 'nullable|string',
+            'products.*.type' => 'nullable|string',
+        ]);
+
+        $quote = Quote::find($quote_id);
+
+        if (!$quote) {
+            return response()->json([
+                'status_code' => 404,
+                'message' => 'Quote not found',
+            ]);
+        }
+
+        $products = $quote->products()->createMany($request->input('products'));
+
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'Success',
+            'data' => $products,
+        ]);
+    }
+
+    public function deleteProduct(string $quote_id, string $product_id)
+    {
+        $quote = Quote::find($quote_id)->products()->find($product_id)->delete();
+
+        if(!$quote) return response()->json([
+            'status_code' => 404,
+            'message' => 'Quote not found',
+        ]);
+
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'Success'
+        ]);
+    }
 }
